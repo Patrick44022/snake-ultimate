@@ -1,5 +1,1 @@
-
 body { background: black; color: lime; text-align: center; font-family: sans-serif; }
-canvas { display: block; margin: 20px auto; background: #111; border: 3px solid lime; }
-#menu { margin: 20px; }
-.dark { background: #111 !important; color: white; }
