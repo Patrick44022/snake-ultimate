@@ -1,1 +1,1 @@
-console.log('Snake Ultimate+ gestartet');
+console.log('Snake Ultimate+ gestartet.');
