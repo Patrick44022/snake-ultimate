@@ -2,27 +2,33 @@
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   width: 100%;
   height: 100%;
   background: black;
   color: lime;
   font-family: sans-serif;
   text-align: center;
+  touch-action: manipulation;
 }
 
 canvas {
   display: block;
   margin: 10px auto;
-  max-width: 100vw;
-  height: auto;
+  width: 100%;
+  max-width: 400px;
   background: #111;
   border: 3px solid lime;
 }
 
 #menu, #leaderboard {
   margin: 10px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
+
 .dark {
   background: #111;
   color: white;
