@@ -1,5 +1,24 @@
 
-body { font-family: sans-serif; text-align: center; background: black; color: lime; }
-canvas { display: block; margin: 20px auto; background: #111; border: 3px solid lime; }
-#menu, #leaderboard { margin: 20px; }
-.dark { background: #111; color: white; }
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: black;
+  color: lime;
+}
+canvas {
+  display: block;
+  margin: 20px auto;
+  background: #111;
+  border: 3px solid lime;
+}
+#menu, #leaderboard {
+  margin: 20px;
+}
+.dark {
+  background: #111 !important;
+  color: white;
+}
+.dark canvas {
+  background: #222;
+  border: 3px solid white;
+}
