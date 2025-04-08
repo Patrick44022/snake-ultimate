@@ -3,13 +3,13 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Snake Ultimate++ Responsive</title>
+  <title>Snake Ultimate++ Final Fix</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-  <h1>🐍 Snake Ultimate++ by Patrick (Online + Responsive)</h1>
+  <h1>🐍 Snake Ultimate++ by Patrick (Online Final)</h1>
   <div id="menu">
     <input type="text" id="playerName" placeholder="Dein Name">
     <select id="skinSelect">
@@ -39,7 +39,7 @@
   <script>
     const { createClient } = supabase;
     const supabaseUrl = "https://cimflibckeqersptrdam.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpbWZsaWJja2VxZXJzcHRyZGFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMzg5NDksImV4cCI6MjA1OTcxNDk0OX0.uHuXcGcaxaQAzpykCShBTp48a2mCaAJ7QUAZLKx2o50";
     const db = createClient(supabaseUrl, supabaseKey);
 
     let canvas = document.getElementById("game");
