@@ -3,13 +3,13 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Snake Ultimate++ FinalFix</title>
+  <title>Snake Ultimate++ Realtime</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-  <h1>🐍 Snake Ultimate++ by Patrick (Fix v3)</h1>
+  <h1>🐍 Snake Ultimate++ by Patrick (v4: Realtime + Fix)</h1>
   <div id="menu">
     <input type="text" id="playerName" placeholder="Dein Name">
     <select id="skinSelect">
@@ -33,7 +33,7 @@
   </div>
 
   <canvas id="game" width="400" height="400"></canvas>
-  <div id="leaderboard"><h2>🌍 Online Highscores</h2><ol id="scores"></ol></div>
+  <div id="leaderboard"><h2>🌍 Online Highscores (Live)</h2><ol id="scores"></ol></div>
   <audio id="music" src="music.mp3" loop autoplay></audio>
 
   <script>
@@ -57,13 +57,15 @@
       }
     }
     window.addEventListener("resize", resizeCanvas);
-    window.onload = () => { resizeCanvas(); updateLeaderboard(); };
+    window.onload = () => {
+      resizeCanvas();
+      updateLeaderboard();
+    };
 
     document.getElementById("startBtn").onclick = () => startGame();
     document.getElementById("musicBtn").onclick = () => toggleMusic();
     document.getElementById("themeBtn").onclick = () => {
       document.body.classList.toggle("dark");
-      console.log("Theme toggled");
     };
     document.getElementById("adminBtn").onclick = () => {
       const pw = document.getElementById("adminPass").value;
@@ -124,6 +126,24 @@
       if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
     });
 
+    canvas.addEventListener("touchstart", e => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    });
+
+    canvas.addEventListener("touchmove", e => {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0 && direction !== "LEFT") direction = "RIGHT";
+        else if (dx < 0 && direction !== "RIGHT") direction = "LEFT";
+      } else {
+        if (dy > 0 && direction !== "UP") direction = "DOWN";
+        else if (dy < 0 && direction !== "DOWN") direction = "UP";
+      }
+    }, { passive: false });
+
     function toggleMusic() {
       music.paused ? music.play() : music.pause();
     }
@@ -152,6 +172,14 @@
         });
       }
     }
+
+    // Realtime-Updater
+    db.channel('realtime:scores')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'highscores' }, payload => {
+        console.log("Neuer Score eingegangen!");
+        updateLeaderboard();
+      }).subscribe();
+
   </script>
 </body>
 </html>
