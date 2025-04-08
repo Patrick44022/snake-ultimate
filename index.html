@@ -3,37 +3,134 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Snake Ultimate++ REAL by Patrick</title>
+  <title>Snake Ultimate TRUE FINAL</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <h1>🐍 Snake Ultimate++ REAL by Patrick</h1>
+  <h1>🐍 Snake Ultimate++ by Patrick</h1>
   <div id="menu">
     <input type="text" id="playerName" placeholder="Dein Name">
     <select id="skinSelect">
       <option value="classic">Classic 🟩</option>
-      <option value="neon">Neon ✨</option>
       <option value="emoji">Emoji 🐍</option>
-      <option value="fire">Fire 🔥</option>
-      <option value="ice">Ice ❄️</option>
+      <option value="neon">Neon ✨</option>
       <option value="frog">Frog 🐸</option>
       <option value="alien">Alien 👾</option>
+      <option value="fire">Fire 🔥</option>
+      <option value="ice">Ice ❄️</option>
       <option value="patrick">Patrick 🅿️</option>
     </select><br><br>
-    <button onclick="startGame()">🎮 Spiel starten</button>
-    <button onclick="toggleMusic()">🎵 Musik an/aus</button>
-    <button onclick="toggleTheme()">🌗 Theme</button><br><br>
+    <button id="startBtn">🎮 Start</button>
+    <button id="musicBtn">🎵 Musik</button>
+    <button id="themeBtn">🌗 Theme</button><br><br>
     <input type="password" id="adminPass" placeholder="Admin Passwort">
-    <button onclick="checkAdmin()">🔐 Admin Login</button>
+    <button id="adminBtn">🔐 Admin</button>
     <div id="adminPanel" style="display:none;">
-      <button onclick="resetScores()">🗑️ Scores löschen</button>
+      <button id="resetBtn">🗑️ Reset Scores</button>
     </div>
   </div>
 
   <canvas id="game" width="400" height="400"></canvas>
   <div id="leaderboard"><h2>🏆 Highscores</h2><ol id="scores"></ol></div>
   <audio id="music" src="music.mp3" loop autoplay></audio>
-  <script src="script.js"></script>
+
+  <script>
+    let canvas = document.getElementById("game");
+    let ctx = canvas.getContext("2d");
+    let music = document.getElementById("music");
+    let skin = "classic", player = "Gast", score = 0, snake = [], direction = "RIGHT", food = {}, interval;
+
+    document.getElementById("startBtn").onclick = () => startGame();
+    document.getElementById("musicBtn").onclick = () => toggleMusic();
+    document.getElementById("themeBtn").onclick = () => document.body.classList.toggle("dark");
+    document.getElementById("adminBtn").onclick = () => {
+      const pw = document.getElementById("adminPass").value;
+      if (pw === "patrickboss") {
+        document.getElementById("adminPanel").style.display = "block";
+        alert("🛡️ Admin aktiviert!");
+      } else alert("❌ Falsches Passwort!");
+    };
+    document.getElementById("resetBtn").onclick = () => {
+      localStorage.removeItem("scores");
+      updateLeaderboard();
+    };
+
+    function startGame() {
+      skin = document.getElementById("skinSelect").value;
+      player = document.getElementById("playerName").value || "Gast";
+      snake = [{x: 200, y: 200}];
+      food = {x: Math.floor(Math.random()*20)*20, y: Math.floor(Math.random()*20)*20};
+      direction = "RIGHT"; score = 0;
+      clearInterval(interval);
+      interval = setInterval(gameLoop, 150);
+    }
+
+    function drawSegment(s, head=false) {
+      ctx.fillStyle = "lime";
+      if (skin === "neon") ctx.fillStyle = "cyan";
+      if (skin === "fire") ctx.fillStyle = "orange";
+      if (skin === "ice") ctx.fillStyle = "#66ccff";
+      if (skin === "emoji") ctx.fillText(head ? "🐍" : "🟩", s.x+2, s.y+18);
+      else if (skin === "frog") ctx.fillText("🐸", s.x+2, s.y+18);
+      else if (skin === "alien") ctx.fillText("👾", s.x+2, s.y+18);
+      else if (skin === "patrick") ctx.fillText("🅿️", s.x+2, s.y+18);
+      else ctx.fillRect(s.x, s.y, 20, 20);
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, 400, 400);
+      let head = {...snake[0]};
+      if (direction === "RIGHT") head.x += 20;
+      if (direction === "LEFT") head.x -= 20;
+      if (direction === "UP") head.y -= 20;
+      if (direction === "DOWN") head.y += 20;
+      if (head.x < 0 || head.x >= 400 || head.y < 0 || head.y >= 400 || snake.some(s => s.x === head.x && s.y === head.y)) {
+        clearInterval(interval);
+        alert("Game Over! Punkte: " + score);
+        saveScore();
+        return;
+      }
+      snake.unshift(head);
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        food = {x: Math.floor(Math.random()*20)*20, y: Math.floor(Math.random()*20)*20};
+      } else {
+        snake.pop();
+      }
+      snake.forEach((s, i) => drawSegment(s, i===0));
+      ctx.fillStyle = "red";
+      ctx.fillRect(food.x, food.y, 20, 20);
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+      if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+      if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+      if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+    });
+
+    function toggleMusic() {
+      music.paused ? music.play() : music.pause();
+    }
+
+    function saveScore() {
+      const data = JSON.parse(localStorage.getItem("scores") || "[]");
+      data.push({player, score, date: new Date().toLocaleDateString()});
+      localStorage.setItem("scores", JSON.stringify(data.slice(-10)));
+      updateLeaderboard();
+    }
+
+    function updateLeaderboard() {
+      const list = document.getElementById("scores");
+      list.innerHTML = "";
+      (JSON.parse(localStorage.getItem("scores") || "[]")).sort((a,b)=>b.score-a.score).forEach(e => {
+        const li = document.createElement("li");
+        li.textContent = `${e.player}: ${e.score} (${e.date})`;
+        list.appendChild(li);
+      });
+    }
+    window.onload = updateLeaderboard;
+  </script>
 </body>
 </html>
