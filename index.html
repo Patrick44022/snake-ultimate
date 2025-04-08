@@ -3,13 +3,13 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Snake Ultimate++ Final Fix</title>
+  <title>Snake Ultimate++ FinalFix</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
 <body>
-  <h1>🐍 Snake Ultimate++ by Patrick (Online Final)</h1>
+  <h1>🐍 Snake Ultimate++ by Patrick (Fix v3)</h1>
   <div id="menu">
     <input type="text" id="playerName" placeholder="Dein Name">
     <select id="skinSelect">
@@ -61,7 +61,10 @@
 
     document.getElementById("startBtn").onclick = () => startGame();
     document.getElementById("musicBtn").onclick = () => toggleMusic();
-    document.getElementById("themeBtn").onclick = () => document.body.classList.toggle("dark");
+    document.getElementById("themeBtn").onclick = () => {
+      document.body.classList.toggle("dark");
+      console.log("Theme toggled");
+    };
     document.getElementById("adminBtn").onclick = () => {
       const pw = document.getElementById("adminPass").value;
       if (pw === "patrickboss") {
@@ -129,8 +132,12 @@
       const { error } = await db.from('highscores').insert([
         { player_name: player, score: score }
       ]);
-      if (error) alert("❌ Fehler beim Speichern!");
-      else updateLeaderboard();
+      if (error) {
+        alert("❌ Fehler beim Speichern!");
+        console.error("Supabase error:", error);
+      } else {
+        updateLeaderboard();
+      }
     }
 
     async function updateLeaderboard() {

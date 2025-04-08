@@ -11,9 +11,19 @@ html, body {
   text-align: center;
   touch-action: manipulation;
 }
+
 canvas {
   background: #111;
   border: 3px solid lime;
   margin: 20px auto;
   display: block;
+}
+
+.dark {
+  background: #111;
+  color: white;
+}
+.dark canvas {
+  background: #222;
+  border-color: white;
 }
