@@ -3,15 +3,37 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Snake Ultimate++ Ultra</title>
+  <title>Snake Ultimate++ REAL by Patrick</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <h1>🐍 Snake Ultimate++ Ultra by Patrick</h1>
+  <h1>🐍 Snake Ultimate++ REAL by Patrick</h1>
+  <div id="menu">
+    <input type="text" id="playerName" placeholder="Dein Name">
+    <select id="skinSelect">
+      <option value="classic">Classic 🟩</option>
+      <option value="neon">Neon ✨</option>
+      <option value="emoji">Emoji 🐍</option>
+      <option value="fire">Fire 🔥</option>
+      <option value="ice">Ice ❄️</option>
+      <option value="frog">Frog 🐸</option>
+      <option value="alien">Alien 👾</option>
+      <option value="patrick">Patrick 🅿️</option>
+    </select><br><br>
+    <button onclick="startGame()">🎮 Spiel starten</button>
+    <button onclick="toggleMusic()">🎵 Musik an/aus</button>
+    <button onclick="toggleTheme()">🌗 Theme</button><br><br>
+    <input type="password" id="adminPass" placeholder="Admin Passwort">
+    <button onclick="checkAdmin()">🔐 Admin Login</button>
+    <div id="adminPanel" style="display:none;">
+      <button onclick="resetScores()">🗑️ Scores löschen</button>
+    </div>
+  </div>
+
   <canvas id="game" width="400" height="400"></canvas>
-  <div id="menu">🎮 Spielmenü (Start, Skins, Admin, Leaderboard usw.)</div>
-  <audio id="music" src="music.mp3" autoplay loop></audio>
+  <div id="leaderboard"><h2>🏆 Highscores</h2><ol id="scores"></ol></div>
+  <audio id="music" src="music.mp3" loop autoplay></audio>
   <script src="script.js"></script>
 </body>
 </html>
