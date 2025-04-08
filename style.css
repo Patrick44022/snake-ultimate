@@ -2,7 +2,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   width: 100%;
   height: 100%;
   background: black;
@@ -11,28 +11,12 @@ html, body {
   text-align: center;
   touch-action: manipulation;
 }
-
 canvas {
   display: block;
+  margin: 10px auto;
   width: 100vw;
   max-width: 100vw;
   height: auto;
   background: #111;
   border: 3px solid lime;
-}
-
-#menu, #leaderboard {
-  margin: 10px;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.dark {
-  background: #111;
-  color: white;
-}
-.dark canvas {
-  background: #222;
-  border-color: white;
 }
