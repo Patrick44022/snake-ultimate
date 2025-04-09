@@ -1,8 +1,43 @@
 
+const { createClient } = supabase;
+const supabaseUrl = "https://cimflibckeqersptrdam.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpbWZsaWJja2VxZXJzcHRyZGFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQxMzg5NDksImV4cCI6MjA1OTcxNDk0OX0.uHuXcGcaxaQAzpykCShBTp48a2mCaAJ7QUAZLKx2o50";
+const db = createClient(supabaseUrl, supabaseKey);
+
 let canvas = document.getElementById("game");
 let ctx = canvas.getContext("2d");
 let music = document.getElementById("music");
 let skin = "classic", player = "Gast", score = 0, snake = [], direction = "RIGHT", food = {}, interval;
+
+document.getElementById("adminBtn").onclick = () => {
+  const pw = document.getElementById("adminPass").value;
+  if (pw === "patrickboss") {
+    document.getElementById("adminPanel").style.display = "block";
+    alert("🛡️ Admin aktiviert!");
+  } else alert("❌ Falsches Passwort!");
+};
+
+document.getElementById("setFood").onclick = () => {
+  food = { 
+    x: parseInt(document.getElementById("foodX").value), 
+    y: parseInt(document.getElementById("foodY").value)
+  };
+};
+
+document.getElementById("setSnake").onclick = () => {
+  const len = parseInt(document.getElementById("snakeLength").value);
+  snake = Array.from({length: len}, (_, i) => ({x: 200 - i * 20, y: 200}));
+};
+
+document.getElementById("gameSpeed").onchange = () => {
+  clearInterval(interval);
+  interval = setInterval(gameLoop, parseInt(document.getElementById("gameSpeed").value));
+};
+
+document.getElementById("resetBtn").onclick = () => {
+  localStorage.removeItem("scores");
+  updateLeaderboard();
+};
 
 function startGame() {
   skin = document.getElementById("skinSelect").value;
@@ -11,19 +46,7 @@ function startGame() {
   food = {x: Math.floor(Math.random()*20)*20, y: Math.floor(Math.random()*20)*20};
   direction = "RIGHT"; score = 0;
   clearInterval(interval);
-  interval = setInterval(gameLoop, 150);
-}
-
-function drawSegment(s, head=false) {
-  ctx.fillStyle = "lime";
-  if (skin === "neon") ctx.fillStyle = "cyan";
-  if (skin === "fire") ctx.fillStyle = "orange";
-  if (skin === "ice") ctx.fillStyle = "#66ccff";
-  if (skin === "emoji") ctx.fillText(head ? "🐍" : "🟩", s.x+2, s.y+18);
-  else if (skin === "frog") ctx.fillText("🐸", s.x+2, s.y+18);
-  else if (skin === "alien") ctx.fillText("👾", s.x+2, s.y+18);
-  else if (skin === "patrick") ctx.fillText("🅿️", s.x+2, s.y+18);
-  else ctx.fillRect(s.x, s.y, 20, 20);
+  interval = setInterval(gameLoop, parseInt(document.getElementById("gameSpeed").value));
 }
 
 function gameLoop() {
@@ -43,53 +66,32 @@ function gameLoop() {
   if (head.x === food.x && head.y === food.y) {
     score++;
     food = {x: Math.floor(Math.random()*20)*20, y: Math.floor(Math.random()*20)*20};
-  } else {
-    snake.pop();
-  }
-  snake.forEach((s, i) => drawSegment(s, i===0));
+  } else snake.pop();
+  snake.forEach(s => ctx.fillRect(s.x, s.y, 20, 20));
   ctx.fillStyle = "red";
   ctx.fillRect(food.x, food.y, 20, 20);
 }
 
 document.addEventListener("keydown", e => {
-  if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
-  if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
-  if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
-  if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+  const keys = {"ArrowUp":"DOWN","ArrowDown":"UP","ArrowLeft":"RIGHT","ArrowRight":"LEFT"};
+  if(direction!==keys[e.key]) direction = e.key.replace("Arrow","").toUpperCase();
 });
 
-function toggleMusic() {
-  music.paused ? music.play() : music.pause();
-}
-function toggleTheme() {
-  document.body.classList.toggle("dark");
-}
-function checkAdmin() {
-  const pw = document.getElementById("adminPass").value;
-  if (pw === "patrickboss") {
-    document.getElementById("adminPanel").style.display = "block";
-    alert("🛡️ Admin-Modus aktiviert!");
-  } else {
-    alert("❌ Falsches Passwort");
-  }
-}
 function saveScore() {
-  const data = JSON.parse(localStorage.getItem("scores") || "[]");
-  data.push({player, score, date: new Date().toLocaleDateString()});
-  localStorage.setItem("scores", JSON.stringify(data.slice(-10)));
+  db.from('highscores').insert([{ player_name: player, score: score }]);
   updateLeaderboard();
 }
-function resetScores() {
-  localStorage.removeItem("scores");
+
+async function updateLeaderboard() {
+  const { data } = await db.from('highscores').select("*").order('score', { ascending: false }).limit(10);
+  document.getElementById("scores").innerHTML = data.map(e => `<li>${e.player_name}: ${e.score}</li>`).join("");
+}
+
+db.channel('realtime:scores').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'highscores' }, updateLeaderboard).subscribe();
+
+window.onload = () => {
+  document.getElementById("startBtn").onclick = startGame;
+  document.getElementById("musicBtn").onclick = () => music.paused ? music.play() : music.pause();
+  document.getElementById("themeBtn").onclick = () => document.body.classList.toggle("dark");
   updateLeaderboard();
-}
-function updateLeaderboard() {
-  const list = document.getElementById("scores");
-  list.innerHTML = "";
-  (JSON.parse(localStorage.getItem("scores") || "[]")).sort((a,b)=>b.score-a.score).forEach(e => {
-    const li = document.createElement("li");
-    li.textContent = `${e.player}: ${e.score} (${e.date})`;
-    list.appendChild(li);
-  });
-}
-window.onload = updateLeaderboard;
+};
